@@ -15,6 +15,11 @@ import javafx.beans.property.StringProperty;
  */
 public class Board {
 	private List<Pos> positions;
+	/*
+	 	StringProperty sono collegate al bottone in modo che quando cambia il valore
+	 	cambia anche la scritta sull'interfaccia grafica. Cioe' cambia questo valore
+	 	allora cambia anche il testo del bottone.
+	 */
 	private Map<Pos, StringProperty> cells;
 
 	private int size;
@@ -64,12 +69,14 @@ public class Board {
 	}
 
 	/**
-	 * Crea una nuova scacchiera generando tutte lettere casuali
+	 * Crea una nuova scacchiera generando tutte lettere casuali senza considerare quei caratteri
+	 * che compaiono piu' frequentemente.
 	 */
 	public void reset() {
 		for(Pos p: this.positions) {
 			int random = (int)(Math.random()*26) ;
 			String letter = Character.toString((char)('A'+random)) ;
+			//qui setto il testo anche del bottone
 			this.cells.get(p).set(letter); 
 		}
 	}

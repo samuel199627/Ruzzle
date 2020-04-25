@@ -1,6 +1,7 @@
 package it.polito.tdp.ruzzle;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +16,24 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
+/*
+	Quello che si vuole fare e' implementare il gioco Ruzzle e quindi con il pulsante Prova
+	si va a verificare se la parola scritta nella parte di testo e' presente nella matrice di lettere
+	mentre con RisolviTutto si va a stampare tutte le possibili parole che troviamo nella matrice
+	di lettere che appartengono al dizionario italiano.
+	
+	Pos identifica la posizione nella griglia (riga, colonna).
+	
+	Board rappresenta la nostra scacchiera.
+	
+	Le righe e le colonne sono numerate a partire da zero e i nomi dei pulsanti li abbiamo indicati
+	come il numero di riga e colonna a cui fanno riferimento.
+ */
+
 public class FXMLController {
 
 	private Model model ; 
+	List<Pos> percorso=null;
 	
 	//corrispondenza bottoni dell'interfaccia grafica <-> caselle della Board 
 	private Map<Pos,Button> letters ;
@@ -92,6 +108,8 @@ public class FXMLController {
     @FXML
     void handleProva(ActionEvent event) {
     	
+    	//metodo per provare singole parole
+    	
     	//refresh interfaccia grafica
     	for(Button b : letters.values()) {
     		b.setDefaultButton(false);
@@ -99,19 +117,22 @@ public class FXMLController {
     	
     	
     	String parola = txtParola.getText() ;
+    	//in ruzzle le parole valide sono almeno di 2 caratteri
     	if(parola.length() <= 1) {
     		txtResult.setText("Devi inserire parole di almeno 2 lettere");
     		return;
     	}
     	parola = parola.toUpperCase();
-    	//controllo che ci siano solo caratteri A-Z
+    	//controllo che ci siano solo caratteri A-Z e non ci siano caratteri numerici
     	if(!parola.matches("[A-Z]+")) {
     		txtResult.setText("Devi inserire solo caratteri alfabetici!");
     		return ;
     	}
     	
-    	List<Pos> percorso = model.trovaParola(parola);
+    	percorso= new ArrayList<Pos>();
+    	percorso = model.trovaParola(parola);
     	
+    	//coloro i bottoni del percorso
     	if(percorso != null) {
     		for(Pos p : percorso) {
     			letters.get(p).setDefaultButton(true);
@@ -125,18 +146,28 @@ public class FXMLController {
 
     @FXML
     void handleReset(ActionEvent event) {
+    	//resettiamo tutte le variabili
     	model.reset();
+    	//decoloriamo eventuali pulsanti che erano rimasti accesi dall'ultima ricerca 
+    	//della singola parola
+    	if(percorso != null) {
+    		for(Pos p : percorso) {
+    			letters.get(p).setDefaultButton(false);
+    		}
+    	}
     }
     
     @FXML
     void handleRisolvi(ActionEvent event) {
     	
     	List<String> tutte = model.trovaTutte();
+    	int conta=0;
     	
     	txtResult.clear();
     	txtResult.appendText(String.format("Ho trovato %d soluzioni\n", tutte.size()));
     	for(String s : tutte) {
-    		txtResult.appendText(s + "\n");
+    		conta++;
+    		txtResult.appendText(""+conta+". "+s + "\n");
     	}
     }
 
@@ -170,6 +201,9 @@ public class FXMLController {
     	
     	this.letters = new HashMap<>() ;
     	
+    	//creiamo un mapping tra le posizioni sulla scacchiera e i relativi
+    	//bottoni in modo che tutto si possa modificare e legare insieme
+    	
     	this.letters.put(new Pos(0,0), let00) ;
     	this.letters.put(new Pos(0,1), let01) ;
     	this.letters.put(new Pos(0,2), let02) ;
@@ -189,6 +223,10 @@ public class FXMLController {
     	this.letters.put(new Pos(3,1), let31) ;
     	this.letters.put(new Pos(3,2), let32) ;
     	this.letters.put(new Pos(3,3), let33) ;
+    	
+    	//per ogni bottone andiamo a legare la string property con il bottone
+    	//in modo che il testo cambi in maniera simultanea tra la proprieta' e
+    	//quello che e' il testo del bottone
 
     	for(Pos cell: m.getBoard().getPositions()) {
     		this.letters.get(cell).textProperty().bind(m.getBoard().getCellValueProperty(cell));

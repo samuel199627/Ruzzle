@@ -10,7 +10,11 @@ import javafx.beans.property.StringProperty;
 public class Model {
 	private final int SIZE = 4;
 	private Board board ;
+	//per controllare la validita' delle parole che troviamo
 	private List<String> dizionario ;
+	//per stampare dei messaggi su finestra.
+	//Poteva anche essere tranquillamente una stringa che stampavamo
+	//nell'area di testo. Qui e' un po' piu' curato.
 	private StringProperty statusText ;
 
 	public Model() {
@@ -52,6 +56,8 @@ public class Model {
 	}
 
 	public List<String> trovaTutte() {
+		//il dizionario e' gia' importato nel costruttore del model quando
+		//questo e' stato creato
 		List<String> tutte = new ArrayList<String>();
 		for(String p : this.dizionario) {
 			if(p.length() > 1) {
